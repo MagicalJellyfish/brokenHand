@@ -1,5 +1,6 @@
 ﻿using brokenHand;
 using brokenHand.Discord.Handlers;
+using brokenHand.Discord.Modules.Basic;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -11,31 +12,23 @@ using System.Reflection;
 
 public class Program
 {
-    public static IConfiguration config;
-    private static DiscordSocketClient _client;
-    private InteractionService _interactionService;
-    private CommandService _commandService;
+    private static IConfiguration _config;
     private readonly IServiceProvider _serviceProvider = CreateServices();
 
     static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
     public async Task MainAsync()
     {
-        config = new ConfigurationBuilder()
-            .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
-            .AddEnvironmentVariables()
-            .Build();
-
         try
         {
-            _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
+            DiscordSocketClient client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
 
-            _client.Ready += _client_Ready;
+            client.Ready += _client_Ready;
 
-            _client.Log += DiscordLog;
+            client.Log += DiscordLog;
 
-            await _client.LoginAsync(TokenType.Bot, config["discordToken"]);
-            await _client.StartAsync();
+            await client.LoginAsync(TokenType.Bot, _config["discordToken"]);
+            await client.StartAsync();
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
@@ -49,31 +42,45 @@ public class Program
 
     static IServiceProvider CreateServices()
     {
-        var config = new DiscordSocketConfig()
+        _config = new ConfigurationBuilder()
+           .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
+           .AddEnvironmentVariables()
+           .Build();
+
+        var discordConfig = new DiscordSocketConfig()
         {
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
         };
 
+        HttpClient httpClient = new HttpClient()
+        {
+            BaseAddress = new Uri("https://localhost:7029/api/")
+        };
+
         var collection = new ServiceCollection()
-            .AddSingleton(config)
+            .AddSingleton(discordConfig)
             .AddSingleton<DiscordSocketClient>()
+
+            .AddSingleton(httpClient)
 
             .AddSingleton<InteractionService>()
             .AddSingleton<InteractionHandler>()
 
             .AddSingleton<CommandService>()
-            .AddSingleton<CommandHandler>();
+            .AddSingleton<CommandHandler>()
+
+            .AddSingleton<BasicService>();
 
         return collection.BuildServiceProvider();
     }
 
     private async Task _client_Ready()
     {
-        _interactionService = _serviceProvider.GetRequiredService<InteractionService>();
+        InteractionService interactionService = _serviceProvider.GetRequiredService<InteractionService>();
         await _serviceProvider.GetRequiredService<InteractionHandler>().InitializeAsync();
-        await _interactionService.RegisterCommandsToGuildAsync(ulong.Parse(config["guildIds:Bot-Test"]));
+        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["guildIds:Bot-Test"]));
 
-        _commandService = _serviceProvider.GetRequiredService<CommandService>();
+        CommandService commandService = _serviceProvider.GetRequiredService<CommandService>();
         await _serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync();
     }
 
