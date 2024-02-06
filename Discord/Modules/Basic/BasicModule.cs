@@ -28,6 +28,7 @@ namespace brokenHand.Discord.Modules.Basic
             if (result == null)
             {
                 await RespondAsync("Something went wrong!", ephemeral: secret);
+                return;
             }
 
             var embed = await _basicService.RollResultEmbed(roll, result);
@@ -42,6 +43,7 @@ namespace brokenHand.Discord.Modules.Basic
             if (result == null)
             {
                 await RespondAsync("Something went wrong!", ephemeral: secret);
+                return;
             }
 
             var embed = await _basicService.RollResultEmbed(roll, result);
