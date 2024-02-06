@@ -1,23 +1,13 @@
-﻿using Discord;
-using Discord.Interactions;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Web;
+﻿using Discord.Interactions;
 
 namespace brokenHand.Discord.Modules.Basic
 {
     public class BasicModule : InteractionModuleBase<SocketInteractionContext>
     {
         public BasicService _basicService;
-        public BasicModule(BasicService basicService)
+        public BasicModule(HttpClient httpClient)
         {
-            _basicService = basicService;
+            _basicService = new BasicService(httpClient);
         }
 
         [SlashCommand("roll", "Roll (or calculate) something")]

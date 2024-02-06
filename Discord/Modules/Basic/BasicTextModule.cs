@@ -1,23 +1,13 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.Interactions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿using Discord.Commands;
 
 namespace brokenHand.Discord.Modules.Basic
 {
     public class BasicTextModule : ModuleBase<SocketCommandContext>
     {
         public BasicService _basicService;
-        public BasicTextModule(BasicService basicService)
+        public BasicTextModule(HttpClient httpClient)
         {
-            _basicService = basicService;
+            _basicService = new BasicService(httpClient);
         }
 
         [Command("roll")]

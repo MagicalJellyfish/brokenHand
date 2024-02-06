@@ -67,9 +67,7 @@ public class Program
             .AddSingleton<InteractionHandler>()
 
             .AddSingleton<CommandService>()
-            .AddSingleton<CommandHandler>()
-
-            .AddSingleton<BasicService>();
+            .AddSingleton<CommandHandler>();
 
         return collection.BuildServiceProvider();
     }
