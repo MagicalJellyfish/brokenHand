@@ -18,40 +18,32 @@ namespace brokenHand.Discord.Modules.Basic
 
             if (response.IsSuccessStatusCode)
             {
-                return await RollResultEmbed(roll, await response.Content.ReadFromJsonAsync<RollResult>());
+                RollResult result = await response.Content.ReadFromJsonAsync<RollResult>();
+
+                var embed = new EmbedBuilder
+                {
+                    Title = result.Result.ToString(),
+                    Description = Format.Sanitize(roll) + "\n= " + Format.Sanitize(result.Detail) + "\n= " + result.Result.ToString()
+                };
+
+                if (roll.StartsWith("1d20") || roll.StartsWith("d20"))
+                {
+                    if (result.Detail.StartsWith("[20]"))
+                    {
+                        embed.Color = Color.Green;
+                    }
+                    if (result.Detail.StartsWith("[1]"))
+                    {
+                        embed.Color = Color.Red;
+                    }
+                }
+
+                return embed;
             }
             else
             {
-                return new EmbedBuilder
-                {
-                    Title = "Error!",
-                    Description = await response.Content.ReadAsStringAsync(),
-                    Color = Color.Red
-                };
+                return await Constants.ErrorEmbedFromResponseAsync(response);
             }
-        }
-
-        public async Task<EmbedBuilder> RollResultEmbed(string roll, RollResult result)
-        {
-            var embed = new EmbedBuilder
-            {
-                Title = result.Result.ToString(),
-                Description = Format.Sanitize(roll) + "\n= " + Format.Sanitize(result.Detail) + "\n= " + result.Result.ToString()
-            };
-
-            if (roll.StartsWith("1d20") || roll.StartsWith("d20"))
-            {
-                if (result.Detail.StartsWith("[20]"))
-                {
-                    embed.Color = Color.Green;
-                }
-                if (result.Detail.StartsWith("[1]"))
-                {
-                    embed.Color = Color.Red;
-                }
-            }
-
-            return embed;
         }
     }
 }
