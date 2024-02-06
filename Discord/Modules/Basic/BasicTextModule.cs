@@ -13,31 +13,13 @@ namespace brokenHand.Discord.Modules.Basic
         [Command("roll")]
         public async Task Ping(string roll)
         {
-            RollResult? result = await _basicService.RollAsync(roll);
-
-            if (result == null)
-            {
-                await ReplyAsync("Something went wrong!");
-                return;
-            }
-
-            var embed = await _basicService.RollResultEmbed(roll, result);
-            await ReplyAsync(embed: embed.Build());
+            await ReplyAsync(embed: (await _basicService.RollAsync(roll)).Build());
         }
 
         [Command("d20")]
         public async Task D20(string roll = "")
         {
-            RollResult? result = await _basicService.RollAsync("1d20" + roll);
-
-            if (result == null)
-            {
-                await ReplyAsync("Something went wrong!");
-                return;
-            }
-
-            var embed = await _basicService.RollResultEmbed(roll, result);
-            await ReplyAsync(embed: embed.Build());
+            await ReplyAsync(embed: (await _basicService.RollAsync("1d20" + roll)).Build());
         }
     }
 }

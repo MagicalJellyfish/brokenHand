@@ -12,17 +12,22 @@ namespace brokenHand.Discord.Modules.Basic
             _httpClient = httpClient;
         }
 
-        public async Task<RollResult?> RollAsync(string roll)
+        public async Task<EmbedBuilder> RollAsync(string roll)
         {
             HttpResponseMessage response = await _httpClient.GetAsync("Actions/roll?rollString=" + HttpUtility.UrlEncode(roll));
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<RollResult>();
+                return await RollResultEmbed(roll, await response.Content.ReadFromJsonAsync<RollResult>());
             }
             else
             {
-                return null;
+                return new EmbedBuilder
+                {
+                    Title = "Error!",
+                    Description = await response.Content.ReadAsStringAsync(),
+                    Color = Color.Red
+                };
             }
         }
 
