@@ -76,7 +76,7 @@ namespace brokenHand.Discord.Modules.CombatModule
                 return new EmbedBuilder
                 {
                     Title = "Character added!",
-                    Description = "Character " + resObj.GetProperty("name").ToString() + "(short " + resObj.GetProperty("shortcut").ToString() +  ") is now in combat with initiative " + resObj.GetProperty("initRoll").ToString() + "!",
+                    Description = "Character " + resObj.GetProperty("name").ToString() + " (short " + resObj.GetProperty("shortcut").ToString() +  ") is now in combat with initiative " + resObj.GetProperty("initRoll").ToString() + "!",
                 };
             }
             else
@@ -121,21 +121,30 @@ namespace brokenHand.Discord.Modules.CombatModule
             }
         }
 
-        public async Task<EmbedBuilder> NextTurn()
+        public async Task<List<EmbedBuilder>> NextTurn()
         {
+            List<EmbedBuilder> embeds = new List<EmbedBuilder>();
             HttpResponseMessage response = await _httpClient.PatchAsync($"Combat/nextTurn", null);
 
             if (response.IsSuccessStatusCode)
             {
-                return new EmbedBuilder
+                JsonElement resObj = JsonDocument.Parse(response.Content.ReadAsStream()).RootElement;
+
+                foreach(JsonElement message in resObj.EnumerateArray())
                 {
-                    Title = "Next turn!",
-                    Description = await response.Content.ReadAsStringAsync()
-                };
+                    embeds.Add(new EmbedBuilder()
+                    {
+                        Title = message.GetProperty("title").ToString(),
+                        Description = message.GetProperty("description").ToString(),
+                    });
+                }
+
+                return embeds;
             }
             else
             {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
+                embeds.Add(await Constants.ErrorEmbedFromResponseAsync(response));
+                return embeds;
             }
         }
     }

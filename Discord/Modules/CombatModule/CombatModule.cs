@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 
 namespace brokenHand.Discord.Modules.CombatModule
 {
@@ -17,7 +18,13 @@ namespace brokenHand.Discord.Modules.CombatModule
             await RespondAsync(embed: (await _combatService.StartCombat()).Build());
         }
 
-        [SlashCommand("activate", "Start a new combat")]
+        [SlashCommand("end", "End combat")]
+        public async Task EndCombat()
+        {
+            await RespondAsync(embed: (await _combatService.EndCombat()).Build());
+        }
+
+        [SlashCommand("activate", "Replace currently active combat")]
         public async Task StartCombat(int id)
         {
             await RespondAsync(embed: (await _combatService.ActivateCombat(id)).Build());
@@ -44,7 +51,38 @@ namespace brokenHand.Discord.Modules.CombatModule
         [SlashCommand("nextturn", "End the current participant's turn and start the next")]
         public async Task NextTurn()
         {
-            await RespondAsync(embed: (await _combatService.NextTurn()).Build());
+            List<EmbedBuilder> embeds = await _combatService.NextTurn();
+            await RespondAsync(embed: embeds.First().Build());
+            embeds.RemoveAt(0);
+
+            foreach (EmbedBuilder embed in embeds)
+            {
+                await ReplyAsync(embed: embed.Build());
+            }
+        }
+    }
+
+    public class CombatModuleShorts : InteractionModuleBase<SocketInteractionContext>
+    {
+        private CombatService _combatService;
+        public CombatModuleShorts(HttpClient httpClient)
+        {
+            _combatService = new CombatService(httpClient);
+        }
+
+        [SlashCommand("next", "End the current participant's turn and start the next")]
+        public async Task NextTurnShort()
+        {
+            List<EmbedBuilder> embeds = await _combatService.NextTurn();
+            EmbedBuilder response = embeds.Last();
+            embeds.RemoveAt(embeds.Count - 1);
+            await RespondAsync(embed: response.Build());
+
+            foreach (EmbedBuilder embed in embeds)
+            {
+                await ReplyAsync(embed: embed.Build());
+            }
+
         }
     }
 }
