@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -124,7 +123,7 @@ namespace brokenHand.Discord.Modules.CombatModule
         public async Task<List<EmbedBuilder>> NextTurn()
         {
             List<EmbedBuilder> embeds = new List<EmbedBuilder>();
-            HttpResponseMessage response = await _httpClient.PatchAsync($"Combat/nextTurn", null);
+            HttpResponseMessage response = await _httpClient.PatchAsync($"Combat/next-turn", null);
 
             if (response.IsSuccessStatusCode)
             {
