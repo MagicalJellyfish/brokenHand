@@ -10,9 +10,9 @@ namespace brokenHand.Discord.Modules.ActionModule
             _httpClient = httpClient;
         }
 
-        public async Task<EmbedBuilder> ActivateCombat(int charId, ulong discordUserId)
+        public async Task<EmbedBuilder> ActivateChar(int charId, ulong discordUserId)
         {
-            HttpResponseMessage response = await _httpClient.PatchAsync($"Character/activate?discordId={discordUserId}&charId={charId}", null);
+            HttpResponseMessage response = await _httpClient.PatchAsync($"Characters/activate?discordId={discordUserId}&charId={charId}", null);
 
             if (response.IsSuccessStatusCode)
             {

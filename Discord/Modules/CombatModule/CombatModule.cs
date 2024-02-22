@@ -25,7 +25,7 @@ namespace brokenHand.Discord.Modules.CombatModule
         }
 
         [SlashCommand("activate", "Replace currently active combat")]
-        public async Task StartCombat(int id)
+        public async Task ActivateCombat(int id)
         {
             await RespondAsync(embed: (await _combatService.ActivateCombat(id)).Build());
         }

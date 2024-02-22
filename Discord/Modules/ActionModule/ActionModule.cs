@@ -13,9 +13,9 @@ namespace brokenHand.Discord.Modules.ActionModule
 
 
         [SlashCommand("activate-char", "Replace your currently active character")]
-        public async Task StartCombat(int id)
+        public async Task ActivateChar(int id)
         {
-            await RespondAsync(embed: (await _actionService.ActivateCombat(id, Context.User.Id)).Build());
+            await RespondAsync(embed: (await _actionService.ActivateChar(id, Context.User.Id)).Build());
         }
     }
 }
