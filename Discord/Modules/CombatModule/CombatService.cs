@@ -122,11 +122,11 @@ namespace brokenHand.Discord.Modules.CombatModule
 
         public async Task<List<EmbedBuilder>> NextTurn()
         {
-            List<EmbedBuilder> embeds = new List<EmbedBuilder>();
             HttpResponseMessage response = await _httpClient.PatchAsync($"Combat/next-turn", null);
 
             if (response.IsSuccessStatusCode)
             {
+                List<EmbedBuilder> embeds = new List<EmbedBuilder>();
                 JsonElement resObj = JsonDocument.Parse(response.Content.ReadAsStream()).RootElement;
 
                 foreach(JsonElement message in resObj.EnumerateArray())
@@ -142,8 +142,7 @@ namespace brokenHand.Discord.Modules.CombatModule
             }
             else
             {
-                embeds.Add(await Constants.ErrorEmbedFromResponseAsync(response));
-                return embeds;
+                return [await Constants.ErrorEmbedFromResponseAsync(response)];
             }
         }
     }
