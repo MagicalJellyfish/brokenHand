@@ -27,7 +27,7 @@ public class Program
 
             client.Log += DiscordLog;
 
-            await client.LoginAsync(TokenType.Bot, _config["discordToken"]);
+            await client.LoginAsync(TokenType.Bot, _config["brokenHand:discordToken"]);
             await client.StartAsync();
 
             // Block this task until the program is closed.
@@ -77,6 +77,8 @@ public class Program
         InteractionService interactionService = _serviceProvider.GetRequiredService<InteractionService>();
         await _serviceProvider.GetRequiredService<InteractionHandler>().InitializeAsync();
         await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["guildIds:Bot-Test"]));
+        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["guildIds:LoneWolfNetwork"]));
+        await interactionService.RegisterCommandsGloballyAsync(true);
 
         CommandService commandService = _serviceProvider.GetRequiredService<CommandService>();
         await _serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync();
