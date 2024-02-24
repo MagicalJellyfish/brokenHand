@@ -45,6 +45,7 @@ public class Program
         _config = new ConfigurationBuilder()
            .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
            .AddEnvironmentVariables()
+           .AddJsonFile("appsettings.json", false, true)
            .Build();
 
         var discordConfig = new DiscordSocketConfig()
@@ -54,7 +55,7 @@ public class Program
 
         HttpClient httpClient = new HttpClient()
         {
-            BaseAddress = new Uri("https://localhost:7029/api/")
+            BaseAddress = new Uri(_config["brokenHeart:url"])
         };
 
         var collection = new ServiceCollection()
