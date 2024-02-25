@@ -52,7 +52,7 @@ public class Program
 
         HttpClient httpClient = new HttpClient()
         {
-            BaseAddress = new Uri(_config["brokenHeart:url"])
+            BaseAddress = new Uri(_config["brokenHeart:url"] + "/api/")
         };
 
         var collection = new ServiceCollection()
