@@ -1,13 +1,10 @@
-﻿using brokenHand;
-using brokenHand.Discord.Handlers;
-using brokenHand.Discord.Modules.Basic;
+﻿using brokenHand.Discord.Handlers;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System.Reflection;
 
 public class Program
@@ -27,7 +24,7 @@ public class Program
 
             client.Log += DiscordLog;
 
-            await client.LoginAsync(TokenType.Bot, _config["brokenHand:discordToken"]);
+            await client.LoginAsync(TokenType.Bot, _config["discordToken"]);
             await client.StartAsync();
 
             // Block this task until the program is closed.
@@ -77,8 +74,8 @@ public class Program
     {
         InteractionService interactionService = _serviceProvider.GetRequiredService<InteractionService>();
         await _serviceProvider.GetRequiredService<InteractionHandler>().InitializeAsync();
-        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["guildIds:Bot-Test"]));
-        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["guildIds:LoneWolfNetwork"]));
+        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["GuildIds:Bot-Test"]));
+        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["GuildIds:LoneWolfNetwork"]));
         await interactionService.RegisterCommandsGloballyAsync(true);
 
         CommandService commandService = _serviceProvider.GetRequiredService<CommandService>();
