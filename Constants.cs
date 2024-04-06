@@ -21,7 +21,7 @@ namespace brokenHand
                 return new EmbedBuilder
                 {
                     Title = "Error!",
-                    Description = response.ReasonPhrase,
+                    Description = response.StatusCode + ": " + response.ReasonPhrase,
                     Color = Color.Red
                 };
             }
