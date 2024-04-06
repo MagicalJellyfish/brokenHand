@@ -74,9 +74,11 @@ public class Program
     {
         InteractionService interactionService = _serviceProvider.GetRequiredService<InteractionService>();
         await _serviceProvider.GetRequiredService<InteractionHandler>().InitializeAsync();
-        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["GuildIds:Bot-Test"]));
-        await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_config["GuildIds:LoneWolfNetwork"]));
-        await interactionService.RegisterCommandsGloballyAsync(true);
+
+        foreach(var id in _config.GetSection("GuildIds").GetChildren())
+        {
+            await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(id.Value));
+        }
 
         CommandService commandService = _serviceProvider.GetRequiredService<CommandService>();
         await _serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync();
