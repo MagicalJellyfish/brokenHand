@@ -7,6 +7,7 @@ namespace brokenHand.Discord.Modules.CombatModule
     public class CombatModule : InteractionModuleBase<SocketInteractionContext>
     {
         private CombatService _combatService;
+
         public CombatModule(HttpClient httpClient)
         {
             _combatService = new CombatService(httpClient);
@@ -33,7 +34,9 @@ namespace brokenHand.Discord.Modules.CombatModule
         [SlashCommand("add-char", "Add a character to the currently active combat")]
         public async Task AddChar(int id, int? initRoll = null, string? shortcut = null)
         {
-            await RespondAsync(embed: (await _combatService.AddParticipant(id, initRoll, shortcut)).Build());
+            await RespondAsync(
+                embed: (await _combatService.AddParticipant(id, initRoll, shortcut)).Build()
+            );
         }
 
         [SlashCommand("remove-char", "Remove a character from combat")]
@@ -45,7 +48,10 @@ namespace brokenHand.Discord.Modules.CombatModule
         [SlashCommand("add-event", "Add an event to the currently active combat")]
         public async Task AddEvent(string name, int round, int init = 0, bool secret = false)
         {
-            await RespondAsync(embed: (await _combatService.AddEvent(name, round, init, secret)).Build(), ephemeral: secret);
+            await RespondAsync(
+                embed: (await _combatService.AddEvent(name, round, init, secret)).Build(),
+                ephemeral: secret
+            );
         }
 
         [SlashCommand("nextturn", "End the current participant's turn and start the next")]
@@ -65,6 +71,7 @@ namespace brokenHand.Discord.Modules.CombatModule
     public class CombatModuleShorts : InteractionModuleBase<SocketInteractionContext>
     {
         private CombatService _combatService;
+
         public CombatModuleShorts(HttpClient httpClient)
         {
             _combatService = new CombatService(httpClient);
@@ -82,7 +89,6 @@ namespace brokenHand.Discord.Modules.CombatModule
             {
                 await ReplyAsync(embed: embed.Build());
             }
-
         }
     }
 }

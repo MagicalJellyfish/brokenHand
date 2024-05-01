@@ -1,11 +1,11 @@
-﻿using brokenHand.Discord.Handlers;
+﻿using System.Reflection;
+using brokenHand.Discord.Handlers;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 public class Program
 {
@@ -40,10 +40,10 @@ public class Program
     static IServiceProvider CreateServices()
     {
         _config = new ConfigurationBuilder()
-           .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
-           .AddEnvironmentVariables()
-           .AddJsonFile("appsettings.json", false, true)
-           .Build();
+            .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
+            .AddEnvironmentVariables()
+            .AddJsonFile("appsettings.json", false, true)
+            .Build();
 
         var discordConfig = new DiscordSocketConfig()
         {
@@ -58,12 +58,9 @@ public class Program
         var collection = new ServiceCollection()
             .AddSingleton(discordConfig)
             .AddSingleton<DiscordSocketClient>()
-
             .AddSingleton(httpClient)
-
             .AddSingleton<InteractionService>()
             .AddSingleton<InteractionHandler>()
-
             .AddSingleton<CommandService>()
             .AddSingleton<CommandHandler>();
 
@@ -72,10 +69,11 @@ public class Program
 
     private async Task _client_Ready()
     {
-        InteractionService interactionService = _serviceProvider.GetRequiredService<InteractionService>();
+        InteractionService interactionService =
+            _serviceProvider.GetRequiredService<InteractionService>();
         await _serviceProvider.GetRequiredService<InteractionHandler>().InitializeAsync();
 
-        foreach(var id in _config.GetSection("GuildIds").GetChildren())
+        foreach (var id in _config.GetSection("GuildIds").GetChildren())
         {
             await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(id.Value));
         }

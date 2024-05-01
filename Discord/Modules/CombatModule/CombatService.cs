@@ -1,12 +1,13 @@
-﻿using Discord;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
+using Discord;
 
 namespace brokenHand.Discord.Modules.CombatModule
 {
     public class CombatService
     {
         private HttpClient _httpClient;
+
         public CombatService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -36,10 +37,7 @@ namespace brokenHand.Discord.Modules.CombatModule
 
             if (response.IsSuccessStatusCode)
             {
-                return new EmbedBuilder
-                {
-                    Title = "Combat ended!",
-                };
+                return new EmbedBuilder { Title = "Combat ended!", };
             }
             else
             {
@@ -49,7 +47,10 @@ namespace brokenHand.Discord.Modules.CombatModule
 
         public async Task<EmbedBuilder> ActivateCombat(int id)
         {
-            HttpResponseMessage response = await _httpClient.PatchAsync("Combat/activate/" + id, null);
+            HttpResponseMessage response = await _httpClient.PatchAsync(
+                "Combat/activate/" + id,
+                null
+            );
 
             if (response.IsSuccessStatusCode)
             {
@@ -67,15 +68,27 @@ namespace brokenHand.Discord.Modules.CombatModule
 
         public async Task<EmbedBuilder> AddParticipant(int id, int? initRoll, string? shortcut)
         {
-            HttpResponseMessage response = await _httpClient.PostAsync($"Combat/add-participant?id={id}&initRoll={initRoll}&shortcut={shortcut}", null);
+            HttpResponseMessage response = await _httpClient.PostAsync(
+                $"Combat/add-participant?id={id}&initRoll={initRoll}&shortcut={shortcut}",
+                null
+            );
 
             if (response.IsSuccessStatusCode)
             {
-                JsonElement resObj = JsonDocument.Parse(response.Content.ReadAsStream()).RootElement;
+                JsonElement resObj = JsonDocument
+                    .Parse(response.Content.ReadAsStream())
+                    .RootElement;
                 return new EmbedBuilder
                 {
                     Title = "Character added!",
-                    Description = "Character " + resObj.GetProperty("name").ToString() + " (short " + resObj.GetProperty("shortcut").ToString() +  ") is now in combat with initiative " + resObj.GetProperty("initRoll").ToString() + "!",
+                    Description =
+                        "Character "
+                        + resObj.GetProperty("name").ToString()
+                        + " (short "
+                        + resObj.GetProperty("shortcut").ToString()
+                        + ") is now in combat with initiative "
+                        + resObj.GetProperty("initRoll").ToString()
+                        + "!",
                 };
             }
             else
@@ -86,7 +99,9 @@ namespace brokenHand.Discord.Modules.CombatModule
 
         public async Task<EmbedBuilder> RemoveParticipant(string shortcut)
         {
-            HttpResponseMessage response = await _httpClient.DeleteAsync($"Combat/remove-participant?shortcut={shortcut}");
+            HttpResponseMessage response = await _httpClient.DeleteAsync(
+                $"Combat/remove-participant?shortcut={shortcut}"
+            );
 
             if (response.IsSuccessStatusCode)
             {
@@ -104,7 +119,22 @@ namespace brokenHand.Discord.Modules.CombatModule
 
         public async Task<EmbedBuilder> AddEvent(string name, int round, int init, bool secret)
         {
-            HttpResponseMessage response = await _httpClient.PostAsync($"Combat/add-event", new StringContent(JsonSerializer.Serialize(new { name, round, secret, init }), Encoding.UTF8, "application/json"));
+            HttpResponseMessage response = await _httpClient.PostAsync(
+                $"Combat/add-event",
+                new StringContent(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            name,
+                            round,
+                            secret,
+                            init
+                        }
+                    ),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
 
             if (response.IsSuccessStatusCode)
             {
@@ -127,15 +157,19 @@ namespace brokenHand.Discord.Modules.CombatModule
             if (response.IsSuccessStatusCode)
             {
                 List<EmbedBuilder> embeds = new List<EmbedBuilder>();
-                JsonElement resObj = JsonDocument.Parse(response.Content.ReadAsStream()).RootElement;
+                JsonElement resObj = JsonDocument
+                    .Parse(response.Content.ReadAsStream())
+                    .RootElement;
 
-                foreach(JsonElement message in resObj.EnumerateArray())
+                foreach (JsonElement message in resObj.EnumerateArray())
                 {
-                    embeds.Add(new EmbedBuilder()
-                    {
-                        Title = message.GetProperty("title").ToString(),
-                        Description = message.GetProperty("description").ToString(),
-                    });
+                    embeds.Add(
+                        new EmbedBuilder()
+                        {
+                            Title = message.GetProperty("title").ToString(),
+                            Description = message.GetProperty("description").ToString(),
+                        }
+                    );
                 }
 
                 return embeds;

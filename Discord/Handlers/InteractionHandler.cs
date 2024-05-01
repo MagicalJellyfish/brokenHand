@@ -1,11 +1,11 @@
-﻿using Discord.Interactions;
-using Discord.WebSocket;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Discord.Interactions;
+using Discord.WebSocket;
 
 namespace brokenHand.Discord.Handlers
 {
@@ -15,7 +15,11 @@ namespace brokenHand.Discord.Handlers
         private readonly InteractionService _commands;
         private readonly IServiceProvider _services;
 
-        public InteractionHandler(DiscordSocketClient client, InteractionService commands, IServiceProvider services)
+        public InteractionHandler(
+            DiscordSocketClient client,
+            InteractionService commands,
+            IServiceProvider services
+        )
         {
             _client = client;
             _commands = commands;

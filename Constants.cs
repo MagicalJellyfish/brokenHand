@@ -4,7 +4,9 @@ namespace brokenHand
 {
     public class Constants
     {
-        public static async Task<EmbedBuilder> ErrorEmbedFromResponseAsync(HttpResponseMessage response)
+        public static async Task<EmbedBuilder> ErrorEmbedFromResponseAsync(
+            HttpResponseMessage response
+        )
         {
             string message = await response.Content.ReadAsStringAsync();
             if (!message.StartsWith('{'))
@@ -25,7 +27,6 @@ namespace brokenHand
                     Color = Color.Red
                 };
             }
-            
         }
     }
 }
