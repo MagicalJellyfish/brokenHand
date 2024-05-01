@@ -41,15 +41,13 @@ namespace brokenHand.Discord.Modules.ActionModule
         public async Task<List<EmbedBuilder>> CharAbility(
             string charId,
             string shortcut,
-            string? targets,
-            bool targetShortcuts = true
+            string? targets
         )
         {
             string requestRoute = $"Actions/ability/{charId}/{HttpUtility.UrlEncode(shortcut)}";
             if (targets != null)
             {
-                requestRoute +=
-                    $"?targets={HttpUtility.UrlEncode(targets)}&targetShortcuts={targetShortcuts}";
+                requestRoute += $"?targets={HttpUtility.UrlEncode(targets)}";
             }
             HttpResponseMessage response = await _httpClient.GetAsync(requestRoute);
 
@@ -59,16 +57,14 @@ namespace brokenHand.Discord.Modules.ActionModule
         public async Task<List<EmbedBuilder>> Ability(
             ulong discordId,
             string shortcut,
-            string? targets,
-            bool targetShortcuts = true
+            string? targets
         )
         {
             string requestRoute =
                 $"Actions/activeAbility/{discordId}/{HttpUtility.UrlEncode(shortcut)}";
             if (targets != null)
             {
-                requestRoute +=
-                    $"?targets={HttpUtility.UrlEncode(targets)}&targetShortcuts={targetShortcuts}";
+                requestRoute += $"?targets={HttpUtility.UrlEncode(targets)}";
             }
             HttpResponseMessage response = await _httpClient.GetAsync(requestRoute);
 

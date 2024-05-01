@@ -22,18 +22,12 @@ namespace brokenHand.Discord.Modules.ActionModule
         }
 
         [SlashCommand("char-ability", "Execute an ability")]
-        public async Task CharAbility(
-            string charId,
-            string abilityShortcut,
-            string? targets = null,
-            bool targetShortcuts = false
-        )
+        public async Task CharAbility(string charId, string abilityShortcut, string? targets = null)
         {
             List<EmbedBuilder> embeds = await _actionService.CharAbility(
                 charId,
                 abilityShortcut,
-                targets,
-                targetShortcuts
+                targets
             );
             await RespondAsync(embed: embeds.First().Build());
             embeds.RemoveAt(0);
@@ -45,17 +39,12 @@ namespace brokenHand.Discord.Modules.ActionModule
         }
 
         [SlashCommand("ability", "Execute an ability")]
-        public async Task Ability(
-            string shortcut,
-            string? targets = null,
-            bool targetShortcuts = false
-        )
+        public async Task Ability(string shortcut, string? targets = null)
         {
             List<EmbedBuilder> embeds = await _actionService.Ability(
                 Context.User.Id,
                 shortcut,
-                targets,
-                targetShortcuts
+                targets
             );
             await RespondAsync(embed: embeds.First().Build());
             embeds.RemoveAt(0);
