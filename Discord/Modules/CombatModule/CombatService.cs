@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Web;
 using Discord;
 
 namespace brokenHand.Discord.Modules.CombatModule
@@ -48,7 +49,7 @@ namespace brokenHand.Discord.Modules.CombatModule
         public async Task<EmbedBuilder> ActivateCombat(int id)
         {
             HttpResponseMessage response = await _httpClient.PatchAsync(
-                "Combat/activate/" + id,
+                $"Combat/activate/{id}",
                 null
             );
 
@@ -69,7 +70,7 @@ namespace brokenHand.Discord.Modules.CombatModule
         public async Task<EmbedBuilder> AddParticipant(int id, int? initRoll, string? shortcut)
         {
             HttpResponseMessage response = await _httpClient.PostAsync(
-                $"Combat/add-participant?id={id}&initRoll={initRoll}&shortcut={shortcut}",
+                $"Combat/add-participant?id={id}&initRoll={initRoll}&shortcut={HttpUtility.UrlEncode(shortcut)}",
                 null
             );
 
@@ -100,7 +101,7 @@ namespace brokenHand.Discord.Modules.CombatModule
         public async Task<EmbedBuilder> RemoveParticipant(string shortcut)
         {
             HttpResponseMessage response = await _httpClient.DeleteAsync(
-                $"Combat/remove-participant?shortcut={shortcut}"
+                $"Combat/remove-participant?shortcut={HttpUtility.UrlEncode(shortcut)}"
             );
 
             if (response.IsSuccessStatusCode)
@@ -120,7 +121,7 @@ namespace brokenHand.Discord.Modules.CombatModule
         public async Task<EmbedBuilder> AddEvent(string name, int round, int init, bool secret)
         {
             HttpResponseMessage response = await _httpClient.PostAsync(
-                $"Combat/add-event",
+                "Combat/add-event",
                 new StringContent(
                     JsonSerializer.Serialize(
                         new
@@ -152,7 +153,7 @@ namespace brokenHand.Discord.Modules.CombatModule
 
         public async Task<List<EmbedBuilder>> NextTurn()
         {
-            HttpResponseMessage response = await _httpClient.PatchAsync($"Combat/next-turn", null);
+            HttpResponseMessage response = await _httpClient.PatchAsync("Combat/next-turn", null);
 
             if (response.IsSuccessStatusCode)
             {

@@ -44,7 +44,7 @@ namespace brokenHand.Discord.Modules.Basic
         public async Task<EmbedBuilder> Roll(string roll)
         {
             HttpResponseMessage response = await _httpClient.GetAsync(
-                "Actions/roll?rollString=" + HttpUtility.UrlEncode(roll)
+                $"Actions/roll?rollString={HttpUtility.UrlEncode(roll)}"
             );
 
             if (response.IsSuccessStatusCode)
