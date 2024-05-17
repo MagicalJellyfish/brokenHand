@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Web;
 using Discord;
 
@@ -14,57 +13,28 @@ namespace brokenHand.Discord.Modules.ActionModule
             _httpClient = httpClient;
         }
 
-        public async Task<EmbedBuilder> ActivateChar(int charId, ulong discordUserId)
-        {
-            HttpResponseMessage response = await _httpClient.PatchAsync(
-                $"Characters/activate?discordId={discordUserId}&charId={charId}",
-                null
-            );
-
-            if (response.IsSuccessStatusCode)
-            {
-                return new EmbedBuilder
-                {
-                    Title = "Character selected!",
-                    Description =
-                        "Character "
-                        + await response.Content.ReadAsStringAsync()
-                        + " is now active!",
-                };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
-        }
-
-        public async Task<List<EmbedBuilder>> CharAbility(
-            string charId,
-            string shortcut,
-            string? targets
-        )
-        {
-            string requestRoute = $"Actions/ability/{charId}/{HttpUtility.UrlEncode(shortcut)}";
-            if (targets != null)
-            {
-                requestRoute += $"?targets={HttpUtility.UrlEncode(targets)}";
-            }
-            HttpResponseMessage response = await _httpClient.GetAsync(requestRoute);
-
-            return await AbilityResponseAsync(response);
-        }
-
         public async Task<List<EmbedBuilder>> Ability(
             ulong discordId,
-            string shortcut,
+            string? charId,
+            string? shortcut,
             string? targets
         )
         {
-            string requestRoute =
-                $"Actions/activeAbility/{discordId}/{HttpUtility.UrlEncode(shortcut)}";
+            string requestRoute = $"Actions/ability?discordId={discordId}";
+
+            if (charId != null)
+            {
+                requestRoute += $"&charId={charId}";
+            }
+
+            if (shortcut != null)
+            {
+                requestRoute += $"&shortcut={HttpUtility.UrlEncode(shortcut)}";
+            }
+
             if (targets != null)
             {
-                requestRoute += $"?targets={HttpUtility.UrlEncode(targets)}";
+                requestRoute += $"&targets={HttpUtility.UrlEncode(targets)}";
             }
             HttpResponseMessage response = await _httpClient.GetAsync(requestRoute);
 

@@ -1,5 +1,4 @@
-﻿using brokenHand.Discord.Modules.CombatModule;
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 
 namespace brokenHand.Discord.Modules.ActionModule
@@ -13,36 +12,16 @@ namespace brokenHand.Discord.Modules.ActionModule
             _actionService = new ActionService(httpClient);
         }
 
-        [SlashCommand("activate-char", "Replace your currently active character")]
-        public async Task ActivateChar(int id)
-        {
-            await RespondAsync(
-                embed: (await _actionService.ActivateChar(id, Context.User.Id)).Build()
-            );
-        }
-
-        [SlashCommand("char-ability", "Execute an ability")]
-        public async Task CharAbility(string charId, string abilityShortcut, string? targets = null)
-        {
-            List<EmbedBuilder> embeds = await _actionService.CharAbility(
-                charId,
-                abilityShortcut,
-                targets
-            );
-            await RespondAsync(embed: embeds.First().Build());
-            embeds.RemoveAt(0);
-
-            foreach (EmbedBuilder embed in embeds)
-            {
-                await ReplyAsync(embed: embed.Build());
-            }
-        }
-
         [SlashCommand("ability", "Execute an ability")]
-        public async Task Ability(string shortcut, string? targets = null)
+        public async Task Ability(
+            string? shortcut = null,
+            [Summary("targets", "Separate multiple targets with space")] string? targets = null,
+            string? charId = null
+        )
         {
             List<EmbedBuilder> embeds = await _actionService.Ability(
                 Context.User.Id,
+                charId,
                 shortcut,
                 targets
             );
