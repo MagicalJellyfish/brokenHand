@@ -1,15 +1,19 @@
 ﻿using System.Reflection;
+using brokenHand.Discord;
 using brokenHand.Discord.Handlers;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 public class Program
 {
     private static IConfiguration _config;
+
+    private static HubConnection _hubConnection;
     private readonly IServiceProvider _serviceProvider = CreateServices();
 
     static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
@@ -26,6 +30,9 @@ public class Program
 
             await client.LoginAsync(TokenType.Bot, _config["discordToken"]);
             await client.StartAsync();
+
+            await _hubConnection.StartAsync();
+            _serviceProvider.GetRequiredService<SignalRModule>();
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
@@ -55,10 +62,15 @@ public class Program
             BaseAddress = new Uri(_config["brokenHeart:url"] + "/api/")
         };
 
+        SetupSignalr();
+
         var collection = new ServiceCollection()
+            .AddSingleton(_config)
             .AddSingleton(discordConfig)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(httpClient)
+            .AddSingleton(_hubConnection)
+            .AddSingleton<SignalRModule>()
             .AddSingleton<InteractionService>()
             .AddSingleton<InteractionHandler>()
             .AddSingleton<CommandService>()
@@ -73,13 +85,25 @@ public class Program
             _serviceProvider.GetRequiredService<InteractionService>();
         await _serviceProvider.GetRequiredService<InteractionHandler>().InitializeAsync();
 
-        foreach (var id in _config.GetSection("GuildIds").GetChildren())
-        {
-            await interactionService.RegisterCommandsToGuildAsync(ulong.Parse(id.Value));
-        }
+        await interactionService.RegisterCommandsToGuildAsync(
+            ulong.Parse(_config.GetSection("Guild")["GuildId"]!)
+        );
 
         CommandService commandService = _serviceProvider.GetRequiredService<CommandService>();
         await _serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync();
+    }
+
+    private static void SetupSignalr()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(_config["brokenHeart:url"] + "/signalr")
+            .Build();
+
+        _hubConnection.Closed += async (error) =>
+        {
+            await Task.Delay(TimeSpan.FromMinutes(1));
+            await _hubConnection.StartAsync();
+        };
     }
 
     private Task DiscordLog(LogMessage msg)

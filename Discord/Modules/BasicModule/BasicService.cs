@@ -33,7 +33,7 @@ namespace brokenHand.Discord.Modules.Basic
             {
                 RollResult result = await response.Content.ReadFromJsonAsync<RollResult>();
 
-                return RollResultEmbed(roll, result);
+                return Constants.RollResultEmbed(roll, result);
             }
             else
             {
@@ -51,36 +51,12 @@ namespace brokenHand.Discord.Modules.Basic
             {
                 RollResult result = await response.Content.ReadFromJsonAsync<RollResult>();
 
-                return RollResultEmbed(roll, result);
+                return Constants.RollResultEmbed(roll, result);
             }
             else
             {
                 return await Constants.ErrorEmbedFromResponseAsync(response);
             }
-        }
-
-        private EmbedBuilder RollResultEmbed(string roll, RollResult result)
-        {
-            var embed = new EmbedBuilder
-            {
-                Title = result.Result.ToString(),
-                Description = Format.Sanitize(result.Detail)
-            };
-
-            if (roll.StartsWith("1d20") || roll.StartsWith("d20"))
-            {
-                string resultDetail = result.Detail.Split("=")[1][1..];
-                if (resultDetail.StartsWith("[20]"))
-                {
-                    embed.Color = Color.Green;
-                }
-                if (resultDetail.StartsWith("[1]"))
-                {
-                    embed.Color = Color.Red;
-                }
-            }
-
-            return embed;
         }
     }
 }
