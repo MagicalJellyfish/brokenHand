@@ -38,17 +38,13 @@ namespace brokenHand
                 Description = Format.Sanitize(result.Detail)
             };
 
-            if (roll.StartsWith("1d20") || roll.StartsWith("d20"))
+            if (result.CriticalSuccess)
             {
-                string resultDetail = result.Detail.Split("=")[1][1..];
-                if (resultDetail.StartsWith("[20]"))
-                {
-                    embed.Color = Color.Green;
-                }
-                if (resultDetail.StartsWith("[1]"))
-                {
-                    embed.Color = Color.Red;
-                }
+                embed.Color = Color.Green;
+            }
+            if (result.CriticalFailure)
+            {
+                embed.Color = Color.Red;
             }
 
             return embed;
