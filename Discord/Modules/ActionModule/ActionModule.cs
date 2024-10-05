@@ -16,14 +16,20 @@ namespace brokenHand.Discord.Modules.ActionModule
         public async Task Ability(
             string? shortcut = null,
             [Summary("targets", "Separate multiple targets with space")] string? targets = null,
-            string? charId = null
+            string? charId = null,
+            string? selfModifier = null,
+            string? targetModifier = null,
+            string? damageModifier = null
         )
         {
             List<EmbedBuilder> embeds = await _actionService.Ability(
                 Context.User.Id,
                 charId,
                 shortcut,
-                targets
+                targets,
+                selfModifier,
+                targetModifier,
+                damageModifier
             );
             await RespondAsync(embed: embeds.First().Build());
             embeds.RemoveAt(0);

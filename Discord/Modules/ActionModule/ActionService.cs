@@ -17,7 +17,10 @@ namespace brokenHand.Discord.Modules.ActionModule
             ulong discordId,
             string? charId,
             string? shortcut,
-            string? targets
+            string? targets,
+            string? selfModifier,
+            string? targetModifier,
+            string? damageModifier
         )
         {
             string requestRoute = $"Actions/ability?discordId={discordId}";
@@ -36,6 +39,20 @@ namespace brokenHand.Discord.Modules.ActionModule
             {
                 requestRoute += $"&targets={HttpUtility.UrlEncode(targets)}";
             }
+
+            if (selfModifier != null)
+            {
+                requestRoute += $"&selfModifier={HttpUtility.UrlEncode(selfModifier)}";
+            }
+            if (targetModifier != null)
+            {
+                requestRoute += $"&targetModifier={HttpUtility.UrlEncode(targetModifier)}";
+            }
+            if (damageModifier != null)
+            {
+                requestRoute += $"&damageModifier={HttpUtility.UrlEncode(damageModifier)}";
+            }
+
             HttpResponseMessage response = await _httpClient.GetAsync(requestRoute);
 
             return await AbilityResponseAsync(response);
