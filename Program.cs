@@ -99,11 +99,21 @@ public class Program
             .WithUrl(_config["brokenHeart:url"] + "/signalr")
             .Build();
 
-        _hubConnection.Closed += async (error) =>
+        _hubConnection.Closed += async (error) => ReconnectSignalr();
+    }
+
+    private static async void ReconnectSignalr()
+    {
+        await Task.Delay(TimeSpan.FromMinutes(1));
+
+        try
         {
-            await Task.Delay(TimeSpan.FromMinutes(1));
             await _hubConnection.StartAsync();
-        };
+        }
+        catch (Exception ex)
+        {
+            ReconnectSignalr();
+        }
     }
 
     private Task DiscordLog(LogMessage msg)
