@@ -37,5 +37,59 @@ namespace brokenHand.Discord.Modules.Basic
                 ephemeral: secret
             );
         }
+
+        [SlashCommand("str", "Roll for strength")]
+        public async Task STR(int? charId = null, bool secret = false)
+        {
+            await RespondAsync(
+                embed: (await _basicService.CharRoll("1d20+STR", Context.User.Id, charId)).Build(),
+                ephemeral: secret
+            );
+        }
+
+        [SlashCommand("dex", "Roll for dexterity")]
+        public async Task DEX(int? charId = null, bool secret = false)
+        {
+            await RespondAsync(
+                embed: (await _basicService.CharRoll("1d20+DEX", Context.User.Id, charId)).Build(),
+                ephemeral: secret
+            );
+        }
+
+        [SlashCommand("con", "Roll for constitution")]
+        public async Task CON(int? charId = null, bool secret = false)
+        {
+            await RespondAsync(
+                embed: (await _basicService.CharRoll("1d20+CON", Context.User.Id, charId)).Build(),
+                ephemeral: secret
+            );
+        }
+
+        [SlashCommand("int", "Roll for intelligence")]
+        public async Task INT(int? charId = null, bool secret = false)
+        {
+            await RespondAsync(
+                embed: (await _basicService.CharRoll("1d20+INT", Context.User.Id, charId)).Build(),
+                ephemeral: secret
+            );
+        }
+
+        [SlashCommand("ins", "Roll for instincts")]
+        public async Task INS(int? charId = null, bool secret = false)
+        {
+            await RespondAsync(
+                embed: (await _basicService.CharRoll("1d20+INS", Context.User.Id, charId)).Build(),
+                ephemeral: secret
+            );
+        }
+
+        [SlashCommand("cha", "Roll for charisma")]
+        public async Task CHA(int? charId = null, bool secret = false)
+        {
+            await RespondAsync(
+                embed: (await _basicService.CharRoll("1d20+CHA", Context.User.Id, charId)).Build(),
+                ephemeral: secret
+            );
+        }
     }
 }
