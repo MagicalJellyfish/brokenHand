@@ -71,7 +71,7 @@ public class Program
             .AddSingleton(httpClient)
             .AddSingleton(_hubConnection)
             .AddSingleton<SignalRModule>()
-            .AddSingleton<InteractionService>()
+            .AddSingleton(p => new InteractionService(p.GetRequiredService<DiscordSocketClient>()))
             .AddSingleton<InteractionHandler>()
             .AddSingleton<CommandService>()
             .AddSingleton<CommandHandler>();
