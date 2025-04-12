@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Discord.Interactions;
 using Discord.WebSocket;
 
@@ -33,17 +28,30 @@ namespace brokenHand.Discord.Handlers
             _client.InteractionCreated += HandleInteraction;
         }
 
-        private async Task HandleInteraction(SocketInteraction arg)
+        private async Task HandleInteraction(SocketInteraction interaction)
         {
             try
             {
-                var ctx = new SocketInteractionContext(_client, arg);
+                LogInteraction((SocketSlashCommand)interaction);
+                var ctx = new SocketInteractionContext(_client, interaction);
                 await _commands.ExecuteCommandAsync(ctx, _services);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Program.Log($"Command execution failed, error {ex.Message}.");
             }
+        }
+
+        private void LogInteraction(SocketSlashCommand command)
+        {
+            List<string> arguments = new List<string>();
+            foreach (SocketSlashCommandDataOption option in command.Data.Options)
+            {
+                arguments.Add($"\r\n    {option.Name} = {option.Value}");
+            }
+            Program.Log(
+                $"Received command {command.Data.Name} with the following arguments: {string.Join("", arguments)}."
+            );
         }
     }
 }
