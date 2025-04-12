@@ -12,6 +12,11 @@ namespace brokenHand
             string message = await response.Content.ReadAsStringAsync();
             if (!message.StartsWith('{'))
             {
+                if (message.Length > 1000)
+                {
+                    message = message.Split("  at ")[0];
+                }
+
                 return new EmbedBuilder
                 {
                     Title = "Error!",
