@@ -14,14 +14,14 @@ namespace brokenHand
             {
                 if (message.Length > 1000)
                 {
-                    message = message.Split("  at ")[0];
+                    message = Format.Sanitize(message.Split("  at ")[0]);
                 }
 
                 return new EmbedBuilder
                 {
                     Title = "Error!",
                     Description = message,
-                    Color = Color.Red
+                    Color = Color.Red,
                 };
             }
             else
@@ -30,7 +30,7 @@ namespace brokenHand
                 {
                     Title = "Error!",
                     Description = response.StatusCode + ": " + response.ReasonPhrase,
-                    Color = Color.Red
+                    Color = Color.Red,
                 };
             }
         }
@@ -39,8 +39,8 @@ namespace brokenHand
         {
             var embed = new EmbedBuilder
             {
-                Title = result.Result.ToString(),
-                Description = Format.Sanitize(result.Detail)
+                Title = Format.Sanitize(result.Result.ToString()),
+                Description = Format.Sanitize(result.Detail),
             };
 
             if (result.CriticalSuccess)

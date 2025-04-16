@@ -71,8 +71,10 @@ namespace brokenHand.Discord.Modules.ActionModule
                 {
                     EmbedBuilder embed = new EmbedBuilder()
                     {
-                        Title = message.GetProperty("title").ToString(),
-                        Description = message.GetProperty("description").ToString()
+                        Title = Format.Sanitize(message.GetProperty("title").ToString()),
+                        Description = Format.Sanitize(
+                            message.GetProperty("description").ToString()
+                        ),
                     };
 
                     if (message.TryGetProperty("color", out var color))
