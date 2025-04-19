@@ -54,5 +54,10 @@ namespace brokenHand
 
             return embed;
         }
+
+        public static List<EmbedBuilder> RollResultEmbed(string roll, List<RollResult> result)
+        {
+            return result.Select(x => RollResultEmbed(roll, x)).ToList();
+        }
     }
 }
