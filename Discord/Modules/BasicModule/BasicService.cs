@@ -13,49 +13,31 @@ namespace brokenHand.Discord.Modules.Basic
             _httpClient = httpClient;
         }
 
-        public async Task<EmbedBuilder> CharRoll(string roll, ulong discordId, int? charId)
+        public async Task<List<EmbedBuilder>> Roll(
+            string roll,
+            ulong discordId,
+            int? charId,
+            int repeat
+        )
         {
-            HttpResponseMessage response;
-            if (charId == null)
-            {
-                response = await _httpClient.GetAsync(
-                    $"Actions/rollActiveChar/{discordId}?rollString={HttpUtility.UrlEncode(roll)}"
-                );
-            }
-            else
-            {
-                response = await _httpClient.GetAsync(
-                    $"Actions/rollChar/{charId}?rollString={HttpUtility.UrlEncode(roll)}"
-                );
-            }
+            string url =
+                "Actions/"
+                + (charId == null ? $"rollActiveChar/{discordId}" : $"rollChar/{charId}")
+                + $"?rollString={HttpUtility.UrlEncode(roll)}&repeat={HttpUtility.UrlEncode(repeat.ToString())}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
-                RollResult result = await response.Content.ReadFromJsonAsync<RollResult>();
+                List<RollResult> result = await response.Content.ReadFromJsonAsync<
+                    List<RollResult>
+                >();
 
                 return Constants.RollResultEmbed(roll, result);
             }
             else
             {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
-        }
-
-        public async Task<EmbedBuilder> Roll(string roll)
-        {
-            HttpResponseMessage response = await _httpClient.GetAsync(
-                $"Actions/roll?rollString={HttpUtility.UrlEncode(roll)}"
-            );
-
-            if (response.IsSuccessStatusCode)
-            {
-                RollResult result = await response.Content.ReadFromJsonAsync<RollResult>();
-
-                return Constants.RollResultEmbed(roll, result);
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
+                return [await Constants.ErrorEmbedFromResponseAsync(response)];
             }
         }
     }
