@@ -8,9 +8,9 @@ namespace brokenHand.Discord.Modules.CombatModule
     {
         private CombatService _combatService;
 
-        public CombatModule(HttpClient httpClient)
+        public CombatModule(CombatService combatService)
         {
-            _combatService = new CombatService(httpClient);
+            _combatService = combatService;
         }
 
         [SlashCommand("start", "Start a new combat")]
@@ -72,9 +72,9 @@ namespace brokenHand.Discord.Modules.CombatModule
     {
         private CombatService _combatService;
 
-        public CombatModuleShorts(HttpClient httpClient)
+        public CombatModuleShorts(CombatService combatService)
         {
-            _combatService = new CombatService(httpClient);
+            _combatService = combatService;
         }
 
         [SlashCommand("next", "End the current participant's turn and start the next")]

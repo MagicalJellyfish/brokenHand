@@ -1,126 +1,100 @@
-﻿using System.Text;
+﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Web;
+using brokenHand.Requests.Models;
 using Discord;
 
 namespace brokenHand.Discord.Modules.CombatModule
 {
     public class CombatService
     {
-        private HttpClient _httpClient;
+        private IHttpClientFactory _httpClientFactory;
 
-        public CombatService(HttpClient httpClient)
+        public CombatService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<EmbedBuilder> StartCombat()
         {
-            HttpResponseMessage response = await _httpClient.PostAsync("Combat", null);
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .PostAsync("Combat", null);
 
-            if (response.IsSuccessStatusCode)
+            return new EmbedBuilder
             {
-                return new EmbedBuilder
-                {
-                    Title = "Combat created!",
-                    Description = "Id is " + await response.Content.ReadAsStringAsync(),
-                };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
+                Title = "Combat created!",
+                Description = $"Id is {await response.Content.ReadAsStringAsync()}",
+            };
         }
 
         public async Task<EmbedBuilder> EndCombat()
         {
-            HttpResponseMessage response = await _httpClient.DeleteAsync("Combat");
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .DeleteAsync("Combat");
 
-            if (response.IsSuccessStatusCode)
-            {
-                return new EmbedBuilder { Title = "Combat ended!", };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
+            return new EmbedBuilder { Title = "Combat ended!" };
         }
 
         public async Task<EmbedBuilder> ActivateCombat(int id)
         {
-            HttpResponseMessage response = await _httpClient.PatchAsync(
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .PatchAsync(
                 $"Combat/activate/{id}",
                 null
             );
 
-            if (response.IsSuccessStatusCode)
+            return new EmbedBuilder
             {
-                return new EmbedBuilder
-                {
-                    Title = "Combat activated!",
-                    Description = "Combat " + id + " is now active!",
-                };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
+                Title = "Combat activated!",
+                Description = $"Combat {id} is now active!",
+            };
         }
 
         public async Task<EmbedBuilder> AddParticipant(int id, int? initRoll, string? shortcut)
         {
-            HttpResponseMessage response = await _httpClient.PostAsync(
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .PostAsync(
                 $"Combat/add-participant?id={id}&initRoll={initRoll}&shortcut={HttpUtility.UrlEncode(shortcut)}",
                 null
             );
 
-            if (response.IsSuccessStatusCode)
+            AddParticipantEmbedResponse embed =
+                await response.Content.ReadFromJsonAsync<AddParticipantEmbedResponse>()
+                ?? throw new Exception("Failed to parse response from add-participant");
+
+            return new EmbedBuilder
             {
-                JsonElement resObj = JsonDocument
-                    .Parse(response.Content.ReadAsStream())
-                    .RootElement;
-                return new EmbedBuilder
-                {
-                    Title = "Character added!",
-                    Description =
-                        "Character "
-                        + resObj.GetProperty("name").ToString()
-                        + " (short "
-                        + resObj.GetProperty("shortcut").ToString()
-                        + ") is now in combat with initiative "
-                        + resObj.GetProperty("initRoll").ToString()
-                        + "!",
-                };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
+                Title = "Character added!",
+                Description =
+                    $"Character {embed.Name} (short \"{embed.Shortcut}\") is now in combat with initiative {embed.InitRoll}!",
+            };
         }
 
         public async Task<EmbedBuilder> RemoveParticipant(string shortcut)
         {
-            HttpResponseMessage response = await _httpClient.DeleteAsync(
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .DeleteAsync(
                 $"Combat/remove-participant?shortcut={HttpUtility.UrlEncode(shortcut)}"
             );
 
-            if (response.IsSuccessStatusCode)
+            return new EmbedBuilder
             {
-                return new EmbedBuilder
-                {
-                    Title = "Character removed!",
-                    Description = "Character " + shortcut + " removed from combat!",
-                };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
+                Title = "Character removed!",
+                Description = $"Character {shortcut} removed from combat!",
+            };
         }
 
         public async Task<EmbedBuilder> AddEvent(string name, int round, int init, bool secret)
         {
-            HttpResponseMessage response = await _httpClient.PostAsync(
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .PostAsync(
                 "Combat/add-event",
                 new StringContent(
                     JsonSerializer.Serialize(
@@ -129,7 +103,7 @@ namespace brokenHand.Discord.Modules.CombatModule
                             name,
                             round,
                             secret,
-                            init
+                            init,
                         }
                     ),
                     Encoding.UTF8,
@@ -137,48 +111,22 @@ namespace brokenHand.Discord.Modules.CombatModule
                 )
             );
 
-            if (response.IsSuccessStatusCode)
+            return new EmbedBuilder
             {
-                return new EmbedBuilder
-                {
-                    Title = "Event added!",
-                    Description = "Event \"" + name + "\" is now primed!",
-                };
-            }
-            else
-            {
-                return await Constants.ErrorEmbedFromResponseAsync(response);
-            }
+                Title = "Event added!",
+                Description = $"Event \"{name}\" is now primed!",
+            };
         }
 
         public async Task<List<EmbedBuilder>> NextTurn()
         {
-            HttpResponseMessage response = await _httpClient.PatchAsync("Combat/next-turn", null);
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .PatchAsync("Combat/next-turn", null);
 
-            if (response.IsSuccessStatusCode)
-            {
-                List<EmbedBuilder> embeds = new List<EmbedBuilder>();
-                JsonElement resObj = JsonDocument
-                    .Parse(response.Content.ReadAsStream())
-                    .RootElement;
-
-                foreach (JsonElement message in resObj.EnumerateArray())
-                {
-                    embeds.Add(
-                        new EmbedBuilder()
-                        {
-                            Title = message.GetProperty("title").ToString(),
-                            Description = message.GetProperty("description").ToString(),
-                        }
-                    );
-                }
-
-                return embeds;
-            }
-            else
-            {
-                return [await Constants.ErrorEmbedFromResponseAsync(response)];
-            }
+            List<EmbedResponse> embeds =
+                await response.Content.ReadFromJsonAsync<List<EmbedResponse>>() ?? [];
+            return embeds.Select(Constants.EmbedsFromResponse).ToList();
         }
     }
 }

@@ -7,9 +7,9 @@ namespace brokenHand.Discord.Modules.ActionModule
     {
         private ActionService _actionService;
 
-        public ActionModule(HttpClient httpClient)
+        public ActionModule(ActionService actionService)
         {
-            _actionService = new ActionService(httpClient);
+            _actionService = actionService;
         }
 
         [SlashCommand("ability", "Execute an ability")]

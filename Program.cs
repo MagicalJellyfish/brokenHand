@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using brokenHand;
 using brokenHand.Discord;
 using brokenHand.Discord.Handlers;
+using brokenHand.Requests.Http;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -57,24 +59,40 @@ public class Program
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
         };
 
-        HttpClient httpClient = new HttpClient()
-        {
-            BaseAddress = new Uri(_config["brokenHeart:url"] + "/api/"),
-        };
-
         SetupSignalr();
 
-        var collection = new ServiceCollection()
+        IServiceCollection collection = new ServiceCollection()
             .AddSingleton(_config)
             .AddSingleton(discordConfig)
             .AddSingleton<DiscordSocketClient>()
-            .AddSingleton(httpClient)
             .AddSingleton(_hubConnection)
             .AddSingleton<SignalRModule>()
             .AddSingleton(p => new InteractionService(p.GetRequiredService<DiscordSocketClient>()))
             .AddSingleton<InteractionHandler>()
             .AddSingleton<CommandService>()
             .AddSingleton<CommandHandler>();
+
+        collection
+            .AddTransient<SuccessOnlyHttpMessageHandler>()
+            .AddHttpClient(
+                Constants.BrokenHeartClient,
+                client =>
+                {
+                    client.BaseAddress = new Uri($"{_config["brokenHeart:url"]}/api/");
+                }
+            )
+            .AddHttpMessageHandler<SuccessOnlyHttpMessageHandler>();
+
+        List<Type> services = Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .Where(t => t.Name.EndsWith("Service"))
+            .ToList();
+
+        foreach (Type service in services)
+        {
+            collection.AddSingleton(service);
+        }
 
         return collection.BuildServiceProvider();
     }
@@ -96,7 +114,7 @@ public class Program
     private static void SetupSignalr()
     {
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl(_config["brokenHeart:url"] + "/signalr")
+            .WithUrl($"{_config["brokenHeart:url"]}/signalr")
             .Build();
 
         _hubConnection.Closed += async (error) => ConnectSignalR();
@@ -120,7 +138,7 @@ public class Program
     private Task DiscordLog(LogMessage msg)
     {
         string currentTime = DateTime.Now.ToString("HH:mm:ss");
-        Console.WriteLine("[Discord] " + currentTime + " - " + msg.ToString().Substring(9));
+        Console.WriteLine($"[Discord] {currentTime} - {msg.ToString().Substring(9)}");
 
         return Task.CompletedTask;
     }
@@ -128,6 +146,6 @@ public class Program
     public static void Log(string msg)
     {
         string currentTime = DateTime.Now.ToString("HH:mm:ss");
-        Console.WriteLine("[Custom] " + currentTime + " - " + msg.ToString());
+        Console.WriteLine($"[Custom] {currentTime} - {msg.ToString()}");
     }
 }
