@@ -1,16 +1,17 @@
 ﻿using System.Net.Http.Json;
 using System.Web;
+using brokenHand.Requests.Models;
 using Discord;
 
 namespace brokenHand.Discord.Modules.Basic
 {
     public class BasicService
     {
-        private HttpClient _httpClient;
+        private IHttpClientFactory _httpClientFactory;
 
-        public BasicService(HttpClient httpClient)
+        public BasicService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<List<EmbedBuilder>> Roll(
@@ -25,20 +26,14 @@ namespace brokenHand.Discord.Modules.Basic
                 + (charId == null ? $"rollActiveChar/{discordId}" : $"rollChar/{charId}")
                 + $"?rollString={HttpUtility.UrlEncode(roll)}&repeat={HttpUtility.UrlEncode(repeat.ToString())}";
 
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .GetAsync(url);
 
-            if (response.IsSuccessStatusCode)
-            {
-                List<RollResult> result = await response.Content.ReadFromJsonAsync<
-                    List<RollResult>
-                >();
+            List<RollResult> results =
+                await response.Content.ReadFromJsonAsync<List<RollResult>?>() ?? [];
 
-                return Constants.RollResultEmbed(roll, result);
-            }
-            else
-            {
-                return [await Constants.ErrorEmbedFromResponseAsync(response)];
-            }
+            return results.Select(x => Constants.RollResultEmbed(roll, x)).ToList();
         }
     }
 }

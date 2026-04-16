@@ -1,16 +1,17 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Json;
 using System.Web;
+using brokenHand.Requests.Models;
 using Discord;
 
 namespace brokenHand.Discord.Modules.ActionModule
 {
     public class ActionService
     {
-        private HttpClient _httpClient;
+        private IHttpClientFactory _httpClientFactory;
 
-        public ActionService(HttpClient httpClient)
+        public ActionService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<List<EmbedBuilder>> Ability(
@@ -53,51 +54,13 @@ namespace brokenHand.Discord.Modules.ActionModule
                 requestRoute += $"&damageModifier={HttpUtility.UrlEncode(damageModifier)}";
             }
 
-            HttpResponseMessage response = await _httpClient.GetAsync(requestRoute);
+            HttpResponseMessage response = await _httpClientFactory
+                .CreateClient(Constants.BrokenHeartClient)
+                .GetAsync(requestRoute);
 
-            return await AbilityResponseAsync(response);
-        }
-
-        private async Task<List<EmbedBuilder>> AbilityResponseAsync(HttpResponseMessage response)
-        {
-            if (response.IsSuccessStatusCode)
-            {
-                List<EmbedBuilder> embeds = new List<EmbedBuilder>();
-                JsonElement resObj = JsonDocument
-                    .Parse(response.Content.ReadAsStream())
-                    .RootElement;
-
-                foreach (JsonElement message in resObj.EnumerateArray())
-                {
-                    EmbedBuilder embed = new EmbedBuilder()
-                    {
-                        Title = Format.Sanitize(message.GetProperty("title").ToString()),
-                        Description = Format.Sanitize(
-                            message.GetProperty("description").ToString()
-                        ),
-                    };
-
-                    if (message.TryGetProperty("color", out var color))
-                    {
-                        switch (color.ToString())
-                        {
-                            case "Green":
-                                embed.Color = Color.Green;
-                                break;
-                            case "Red":
-                                embed.Color = Color.Red;
-                                break;
-                        }
-                    }
-                    embeds.Add(embed);
-                }
-
-                return embeds;
-            }
-            else
-            {
-                return [await Constants.ErrorEmbedFromResponseAsync(response)];
-            }
+            List<EmbedResponse> embeds =
+                await response.Content.ReadFromJsonAsync<List<EmbedResponse>>() ?? [];
+            return embeds.Select(Constants.EmbedsFromResponse).ToList();
         }
     }
 }

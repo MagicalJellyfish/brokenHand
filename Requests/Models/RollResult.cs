@@ -1,4 +1,4 @@
-﻿namespace brokenHand.Discord.Modules.Basic
+﻿namespace brokenHand.Requests.Models
 {
     public class RollResult
     {

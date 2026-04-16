@@ -7,9 +7,9 @@ namespace brokenHand.Discord.Modules.DefaultsModule
     {
         private DefaultsService _defaultsService;
 
-        public DefaultsModule(HttpClient httpClient)
+        public DefaultsModule(DefaultsService defaultsService)
         {
-            _defaultsService = new DefaultsService(httpClient);
+            _defaultsService = defaultsService;
         }
 
         [SlashCommand("char", "Set your current default character")]

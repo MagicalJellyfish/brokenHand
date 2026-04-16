@@ -7,9 +7,9 @@ namespace brokenHand.Discord.Modules.Basic
     {
         public BasicService _basicService;
 
-        public BasicModule(HttpClient httpClient)
+        public BasicModule(BasicService basicService)
         {
-            _basicService = new BasicService(httpClient);
+            _basicService = basicService;
         }
 
         [SlashCommand(
@@ -29,7 +29,7 @@ namespace brokenHand.Discord.Modules.Basic
             bool secret = false
         )
         {
-            await RollAndRespond("1d20" + roll, charId, repeat, secret);
+            await RollAndRespond($"1d20{roll}", charId, repeat, secret);
         }
 
         [SlashCommand("str", "Roll for strength")]

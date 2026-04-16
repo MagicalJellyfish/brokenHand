@@ -1,38 +1,33 @@
-﻿using brokenHand.Discord.Modules.Basic;
+﻿using brokenHand.Requests.Models;
 using Discord;
 
 namespace brokenHand
 {
     public class Constants
     {
-        public static async Task<EmbedBuilder> ErrorEmbedFromResponseAsync(
-            HttpResponseMessage response
-        )
-        {
-            string message = await response.Content.ReadAsStringAsync();
-            if (!message.StartsWith('{'))
-            {
-                if (message.Length > 1000)
-                {
-                    message = Format.Sanitize(message.Split("  at ")[0]);
-                }
+        public const string BrokenHeartClient = nameof(BrokenHeartClient);
 
-                return new EmbedBuilder
-                {
-                    Title = "Error!",
-                    Description = message,
-                    Color = Color.Red,
-                };
-            }
-            else
+        public static EmbedBuilder EmbedsFromResponse(EmbedResponse message)
+        {
+            EmbedBuilder embed = new EmbedBuilder()
             {
-                return new EmbedBuilder
+                Title = Format.Sanitize(message.Title),
+                Description = Format.Sanitize(message.Description),
+            };
+
+            if (message.Color != null)
+            {
+                switch (message.Color)
                 {
-                    Title = "Error!",
-                    Description = response.StatusCode + ": " + response.ReasonPhrase,
-                    Color = Color.Red,
-                };
+                    case "Green":
+                        embed.Color = Color.Green;
+                        break;
+                    case "Red":
+                        embed.Color = Color.Red;
+                        break;
+                }
             }
+            return embed;
         }
 
         public static EmbedBuilder RollResultEmbed(string roll, RollResult result)
@@ -53,11 +48,6 @@ namespace brokenHand
             }
 
             return embed;
-        }
-
-        public static List<EmbedBuilder> RollResultEmbed(string roll, List<RollResult> result)
-        {
-            return result.Select(x => RollResultEmbed(roll, x)).ToList();
         }
     }
 }
