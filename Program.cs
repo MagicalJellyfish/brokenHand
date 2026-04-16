@@ -31,7 +31,7 @@ public class Program
             await client.LoginAsync(TokenType.Bot, _config["discordToken"]);
             await client.StartAsync();
 
-            await _hubConnection.StartAsync();
+            ConnectSignalR();
             _serviceProvider.GetRequiredService<SignalRModule>();
 
             // Block this task until the program is closed.
@@ -54,12 +54,12 @@ public class Program
 
         var discordConfig = new DiscordSocketConfig()
         {
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
         };
 
         HttpClient httpClient = new HttpClient()
         {
-            BaseAddress = new Uri(_config["brokenHeart:url"] + "/api/")
+            BaseAddress = new Uri(_config["brokenHeart:url"] + "/api/"),
         };
 
         SetupSignalr();
@@ -99,20 +99,21 @@ public class Program
             .WithUrl(_config["brokenHeart:url"] + "/signalr")
             .Build();
 
-        _hubConnection.Closed += async (error) => ReconnectSignalr();
+        _hubConnection.Closed += async (error) => ConnectSignalR();
     }
 
-    private static async void ReconnectSignalr()
+    private static async void ConnectSignalR()
     {
-        await Task.Delay(TimeSpan.FromMinutes(1));
-
         try
         {
             await _hubConnection.StartAsync();
+            Log("SignalR connection established.");
         }
         catch (Exception ex)
         {
-            ReconnectSignalr();
+            Log("SignalR connection failed. Waiting 1 minute before reconnecting...");
+            await Task.Delay(TimeSpan.FromMinutes(1));
+            ConnectSignalR();
         }
     }
 
